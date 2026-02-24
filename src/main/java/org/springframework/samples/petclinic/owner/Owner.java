@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.core.style.ToStringCreator;
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -57,12 +58,11 @@ public class Owner extends Person {
 
 	@Column
 	@NotBlank
-	@Pattern(regexp = "\\d{10}", message = "{telephone.invalid}")
-	private String telephone;
+	@Column(name = "address")
+	@NotBlank
+	private String address;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "owner_id")
-	@OrderBy("name")
+	@Column(name = "city")
 	private final List<Pet> pets = new ArrayList<>();
 
 	public String getAddress() {
