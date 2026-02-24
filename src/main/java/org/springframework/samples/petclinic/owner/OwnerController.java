@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.core.style.ToStringCreator;
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -27,12 +28,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.WebDataBinder;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.InitBinder;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+	@Column(name = "address")
+	@NotBlank
+	private String address;
+
+	@Column(name = "city")
 import org.springframework.web.servlet.ModelAndView;
 
 import jakarta.validation.Valid;
