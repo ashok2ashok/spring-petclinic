@@ -6,6 +6,7 @@ import jakarta.validation.constraints.Digits;
 import jakarta.validation.constraints.NotEmpty;
 import org.springframework.core.style.ToStringCreator;
 import org.springframework.core.style.ToStringCreator;
+import org.springframework.core.style.ToStringCreator;
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -47,12 +48,11 @@ import jakarta.validation.constraints.NotBlank;
  * @author Wick Dynex
  */
 @Entity
-@Table(name = "owners")
-public class Owner extends Person {
-
-	@NotBlank
 	@Column(name = "address")
+	@NotBlank
 	private String address;
+
+	@Column(name = "city")
 	@NotBlank
 	private String city;
 
