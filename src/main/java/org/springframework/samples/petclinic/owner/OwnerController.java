@@ -1,9 +1,10 @@
-/*
- * Copyright 2012-2025 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+package org.springframework.samples.petclinic.owner;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotEmpty;
+import org.springframework.core.style.ToStringCreator;
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -47,12 +48,11 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
  */
 @Controller
 class OwnerController {
+	@Column(name = "address")
+	@NotBlank
+	private String address;
 
-	private static final String VIEWS_OWNER_CREATE_OR_UPDATE_FORM = "owners/createOrUpdateOwnerForm";
-
-	private final OwnerRepository owners;
-
-	public OwnerController(OwnerRepository owners) {
+	@Column(name = "city")
 		this.owners = owners;
 	}
 
