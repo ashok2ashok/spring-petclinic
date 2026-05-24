@@ -1,9 +1,13 @@
-/*
- * Copyright 2012-2025 the original author or authors.
- *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
+package org.springframework.samples.petclinic.owner;
+
+import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Digits;
+import jakarta.validation.constraints.NotEmpty;
+import org.springframework.core.style.ToStringCreator;
+import org.springframework.core.style.ToStringCreator;
+import org.springframework.core.style.ToStringCreator;
+import org.springframework.core.style.ToStringCreator;
  *
  *      https://www.apache.org/licenses/LICENSE-2.0
  *
@@ -24,12 +28,11 @@ import org.springframework.samples.petclinic.model.Person;
 import org.springframework.util.Assert;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OrderBy;
+	@Column(name = "address")
+	@NotBlank
+	private String address;
+
+	@Column(name = "city")
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.NotBlank;
@@ -45,25 +48,21 @@ import jakarta.validation.constraints.NotBlank;
  * @author Wick Dynex
  */
 @Entity
-@Table(name = "owners")
-public class Owner extends Person {
-
-	@Column
+	@Column(name = "address")
 	@NotBlank
 	private String address;
 
-	@Column
+	@Column(name = "city")
 	@NotBlank
 	private String city;
 
 	@Column
 	@NotBlank
-	@Pattern(regexp = "\\d{10}", message = "{telephone.invalid}")
-	private String telephone;
+	@Column(name = "address")
+	@NotBlank
+	private String address;
 
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
-	@JoinColumn(name = "owner_id")
-	@OrderBy("name")
+	@Column(name = "city")
 	private final List<Pet> pets = new ArrayList<>();
 
 	public String getAddress() {
