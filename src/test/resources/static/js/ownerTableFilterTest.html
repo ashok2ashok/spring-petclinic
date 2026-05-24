@@ -1,0 +1,381 @@
+/**
+ * ownerTable.js
+ * Client-side live filtering for the Find Owners results table.
+ * Pure vanilla JS — no external dependencies.
+ */
+
+/**
+ * Filters the rows of a given table body based on an array of filter descriptors.
+ *
+ * @param {HTMLTableSectionElement} tbody   - The <tbody> element whose rows are filtered.
+ * @param {Array<{colIndex: number, value: string}>} filters - Active filter descriptors.
+ */
+function filterTable(tbody, filters) {
+    var rows = tbody.querySelectorAll('tr');
+    for (var i = 0; i < rows.length; i++) {
+        var row = rows[i];
+        var visible = true;
+        for (var j = 0; j < filters.length; j++) {
+            var filter = filters[j];
+            if (filter.value === '') {
+                continue;
+            }
+            var cell = row.cells[filter.colIndex];
+            if (!cell) {
+                visible = false;
+                break;
+            }
+            var cellText = cell.textContent || cell.innerText || '';
+            if (cellText.toLowerCase().indexOf(filter.value.toLowerCase()) === -1) {
+                visible = false;
+                break;
+            }
+        }
+        row.style.display = visible ? '' : 'none';
+    }
+}
+
+/**
+ * Initialises filter inputs found in the owners table.
+ * Inputs must carry a data-column-filter attribute whose value is the
+ * zero-based index of the column they filter.
+ */
+function initOwnerTableFilters() {
+    var table = document.getElementById('ownersTable');
+    if (!table) {
+        // Nothing to do on pages that don't include the owners table.
+        return;
+    }
+
+    var tbody = table.querySelector('tbody');
+    if (!tbody) {
+        return;
+    }
+
+    var filterInputs = table.querySelectorAll('input[data-column-filter]');
+    if (!filterInputs || filterInputs.length === 0) {
+        return;
+    }
+
+    function buildFilters() {
+        var filters = [];
+        for (var k = 0; k < filterInputs.length; k++) {
+            var input = filterInputs[k];
+            filters.push({
+                colIndex: parseInt(input.getAttribute('data-column-filter'), 10),
+                value: input.value
+            });
+        }
+        return filters;
+    }
+
+    for (var m = 0; m < filterInputs.length; m++) {
+        filterInputs[m].addEventListener('input', function () {
+            filterTable(tbody, buildFilters());
+        });
+    }
+}
+
+document.addEventListener('DOMContentLoaded', initOwnerTableFilters);
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: layout (~{::body},'owners')}">
+
+<body>
+
+  <div class="container-fluid">
+    <div class="container xd-container">
+
+      <h2>Owners</h2>
+
+      <table id="ownersTable" class="table table-striped">
+        <thead>
+          <tr>
+            <th style="width: 150px;">First Name</th>
+            <th style="width: 200px;">Last Name</th>
+            <th>Address</th>
+            <th style="width: 120px;">City</th>
+            <th style="width: 120px;">Telephone</th>
+            <th style="width: 100px;">Pets</th>
+          </tr>
+          <tr>
+            <th>
+              <input type="text"
+                     class="form-control form-control-sm"
+                     placeholder="Filter..."
+                     data-column-filter="0"
+                     aria-label="Filter by First Name" />
+            </th>
+            <th>
+              <input type="text"
+                     class="form-control form-control-sm"
+                     placeholder="Filter..."
+                     data-column-filter="1"
+                     aria-label="Filter by Last Name" />
+            </th>
+            <th>
+              <input type="text"
+                     class="form-control form-control-sm"
+                     placeholder="Filter..."
+                     data-column-filter="2"
+                     aria-label="Filter by Address" />
+            </th>
+            <th>
+              <input type="text"
+                     class="form-control form-control-sm"
+                     placeholder="Filter..."
+                     data-column-filter="3"
+                     aria-label="Filter by City" />
+            </th>
+            <th>
+              <input type="text"
+                     class="form-control form-control-sm"
+                     placeholder="Filter..."
+                     data-column-filter="4"
+                     aria-label="Filter by Telephone" />
+            </th>
+            <th><!-- Pets column: no filter --></th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr th:each="owner : ${selections}">
+            <td th:text="${owner.firstName}"></td>
+            <td>
+              <a th:href="@{/owners/__${owner.id}__}"
+                 th:text="${owner.lastName}"></a>
+            </td>
+            <td th:text="${owner.address}"></td>
+            <td th:text="${owner.city}"></td>
+            <td th:text="${owner.telephone}"></td>
+            <td>
+              <span th:each="pet,petStat : ${owner.pets}">
+                <span th:text="${pet.name}"></span><span th:if="${!petStat.last}">, </span>
+              </span>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+
+    </div>
+  </div>
+
+  <script th:src="@{/js/ownerTable.js}"></script>
+
+</body>
+</html>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ownerTable.js Filter Logic Smoke Tests</title>
+    <style>
+        body { font-family: monospace; padding: 20px; background: #f8f9fa; }
+        h1 { font-size: 1.4em; margin-bottom: 16px; }
+        .result { margin: 6px 0; padding: 6px 10px; border-radius: 4px; }
+        .pass { background: #d4edda; color: #155724; }
+        .fail { background: #f8d7da; color: #721c24; }
+        .summary { margin-top: 20px; font-size: 1.1em; font-weight: bold; }
+        table { border-collapse: collapse; margin: 20px 0; font-size: 0.85em; }
+        th, td { border: 1px solid #ccc; padding: 4px 8px; }
+        th { background: #e9ecef; }
+        input.form-control { width: 100%; box-sizing: border-box; padding: 2px 4px; }
+    </style>
+</head>
+<body>
+    <h1>ownerTable.js — Client-Side Filter Smoke Tests</h1>
+    <div id="results"></div>
+    <div id="summary" class="summary"></div>
+
+    <!--
+        Mock owners table that mirrors the structure expected by ownerTable.js:
+          - thead with two rows: row[0] = column headers, row[1] = filter inputs
+          - tbody with data rows, one <td> per column in the same order
+        Columns: First Name | Last Name | Address | City | Telephone
+    -->
+    <table id="ownersTable">
+        <thead>
+            <tr>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Address</th>
+                <th>City</th>
+                <th>Telephone</th>
+            </tr>
+            <tr id="filterRow">
+                <th><input class="form-control" type="text" id="filter-firstName"  placeholder="Filter…"></th>
+                <th><input class="form-control" type="text" id="filter-lastName"   placeholder="Filter…"></th>
+                <th><input class="form-control" type="text" id="filter-address"    placeholder="Filter…"></th>
+                <th><input class="form-control" type="text" id="filter-city"       placeholder="Filter…"></th>
+                <th><input class="form-control" type="text" id="filter-telephone"  placeholder="Filter…"></th>
+            </tr>
+        </thead>
+        <tbody id="ownersTableBody">
+            <!-- Row 0 -->
+            <tr>
+                <td>Alice</td>
+                <td>Smith</td>
+                <td>123 Maple St</td>
+                <td>Springfield</td>
+                <td>6085551234</td>
+            </tr>
+            <!-- Row 1 -->
+            <tr>
+                <td>Bob</td>
+                <td>Jones</td>
+                <td>456 Oak Ave</td>
+                <td>Shelbyville</td>
+                <td>6085555678</td>
+            </tr>
+            <!-- Row 2 -->
+            <tr>
+                <td>Carol</td>
+                <td>Smith</td>
+                <td>789 Pine Rd</td>
+                <td>Springfield</td>
+                <td>6085559012</td>
+            </tr>
+            <!-- Row 3 -->
+            <tr>
+                <td>Dave</td>
+                <td>Brown</td>
+                <td>321 Elm Blvd</td>
+                <td>Capital City</td>
+                <td>6085553456</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <!--
+        Load the production filtering script.
+        When running this file from the project root the relative path resolves to
+        src/main/resources/static/js/ownerTable.js.
+        Adjust the path if opening from a different working directory.
+    -->
+    <script src="../../../../../main/resources/static/js/ownerTable.js"></script>
+
+    <script>
+        // ── Test harness ──────────────────────────────────────────────────────────
+        var passed = 0;
+        var failed = 0;
+        var resultsEl = document.getElementById('results');
+
+        function assert(description, condition) {
+            var div = document.createElement('div');
+            div.className = 'result ' + (condition ? 'pass' : 'fail');
+            div.textContent = (condition ? '✓ PASS' : '✗ FAIL') + ' — ' + description;
+            resultsEl.appendChild(div);
+            if (condition) { passed++; } else { failed++; }
+        }
+
+        // Helper: set a filter input value and fire the 'input' event so that
+        // ownerTable.js reacts exactly as it would to a real keystroke.
+        function setFilter(inputId, value) {
+            var input = document.getElementById(inputId);
+            input.value = value;
+            input.dispatchEvent(new Event('input', { bubbles: true }));
+        }
+
+        // Helper: clear every filter input and fire events to reset the table.
+        function clearAllFilters() {
+            ['filter-firstName', 'filter-lastName', 'filter-address',
+             'filter-city', 'filter-telephone'].forEach(function(id) {
+                setFilter(id, '');
+            });
+        }
+
+        // Helper: return an array of booleans indicating which tbody rows are visible.
+        function rowVisibility() {
+            var rows = document.querySelectorAll('#ownersTableBody tr');
+            return Array.prototype.map.call(rows, function(row) {
+                return row.style.display !== 'none';
+            });
+        }
+
+        // ── Wait for the DOM + script to be fully ready ───────────────────────────
+        window.addEventListener('load', function () {
+
+            // ── Test 1: All rows visible when no filter is active ─────────────────
+            clearAllFilters();
+            var vis = rowVisibility();
+            assert('All 4 rows visible with no filter active',
+                vis[0] && vis[1] && vis[2] && vis[3]);
+
+            // ── Test 2: Single-column filter — Last Name "Smith" ──────────────────
+            clearAllFilters();
+            setFilter('filter-lastName', 'Smith');
+            vis = rowVisibility();
+            // Alice Smith (0) and Carol Smith (2) should be visible
+            assert('Row 0 (Alice Smith) visible when lastName filter = "Smith"',  vis[0]);
+            assert('Row 1 (Bob Jones)   hidden  when lastName filter = "Smith"', !vis[1]);
+            assert('Row 2 (Carol Smith) visible when lastName filter = "Smith"',  vis[2]);
+            assert('Row 3 (Dave Brown)  hidden  when lastName filter = "Smith"', !vis[3]);
+
+            // ── Test 3: Case-insensitive matching ─────────────────────────────────
+            clearAllFilters();
+            setFilter('filter-lastName', 'smith');   // lower-case
+            vis = rowVisibility();
+            assert('Case-insensitive: "smith" matches Alice Smith',  vis[0]);
+            assert('Case-insensitive: "smith" matches Carol Smith',  vis[2]);
+            assert('Case-insensitive: "smith" does not match Jones', !vis[1]);
+
+            clearAllFilters();
+            setFilter('filter-firstName', 'ALICE');  // upper-case
+            vis = rowVisibility();
+            assert('Case-insensitive: "ALICE" matches Alice', vis[0]);
+            assert('Case-insensitive: "ALICE" does not match Bob', !vis[1]);
+
+            // ── Test 4: Multiple simultaneous filters ─────────────────────────────
+            clearAllFilters();
+            setFilter('filter-lastName', 'Smith');
+            setFilter('filter-city',     'Springfield');
+            vis = rowVisibility();
+            // Alice Smith / Springfield (0) → visible
+            // Bob Jones   / Shelbyville (1) → hidden (neither matches)
+            // Carol Smith / Springfield (2) → visible
+            // Dave Brown  / Capital City(3) → hidden
+            assert('Multi-filter: Row 0 (Alice Smith, Springfield) visible',  vis[0]);
+            assert('Multi-filter: Row 1 (Bob Jones, Shelbyville) hidden',    !vis[1]);
+            assert('Multi-filter: Row 2 (Carol Smith, Springfield) visible',  vis[2]);
+            assert('Multi-filter: Row 3 (Dave Brown, Capital City) hidden',  !vis[3]);
+
+            // ── Test 5: Clearing a filter restores rows ───────────────────────────
+            // Still have lastName=Smith, city=Springfield from Test 4
+            setFilter('filter-lastName', '');   // clear lastName filter
+            vis = rowVisibility();
+            // Now only city=Springfield is active → rows 0 and 2 visible
+            assert('After clearing lastName filter, Row 0 (Springfield) still visible', vis[0]);
+            assert('After clearing lastName filter, Row 1 (Shelbyville) still hidden', !vis[1]);
+            assert('After clearing lastName filter, Row 2 (Springfield) still visible', vis[2]);
+            assert('After clearing lastName filter, Row 3 (Capital City) still hidden', !vis[3]);
+
+            clearAllFilters();
+            vis = rowVisibility();
+            assert('After clearing all filters, all 4 rows visible',
+                vis[0] && vis[1] && vis[2] && vis[3]);
+
+            // ── Test 6: Partial-text (substring) matching ─────────────────────────
+            clearAllFilters();
+            setFilter('filter-address', 'Ave');
+            vis = rowVisibility();
+            assert('Substring match: "Ave" matches "456 Oak Ave" (Row 1)',  vis[1]);
+            assert('Substring match: "Ave" does not match "123 Maple St"', !vis[0]);
+            assert('Substring match: "Ave" does not match "789 Pine Rd"',  !vis[2]);
+            assert('Substring match: "Ave" does not match "321 Elm Blvd"', !vis[3]);
+
+            // ── Test 7: Filter that matches no rows ───────────────────────────────
+            clearAllFilters();
+            setFilter('filter-firstName', 'ZZZNOMATCH');
+            vis = rowVisibility();
+            assert('No-match filter hides all rows',
+                !vis[0] && !vis[1] && !vis[2] && !vis[3]);
+
+            // ── Summary ───────────────────────────────────────────────────────────
+            clearAllFilters();   // restore table to clean state after tests
+            var summaryEl = document.getElementById('summary');
+            summaryEl.textContent = 'Results: ' + passed + ' passed, ' + failed + ' failed.';
+            summaryEl.style.color = failed === 0 ? '#155724' : '#721c24';
+        });
+    </script>
+</body>
+</html>
