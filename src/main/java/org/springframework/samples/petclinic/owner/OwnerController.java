@@ -1,16 +1,19 @@
-/*
- * Copyright 2012-2025 the original author or authors.
+package org.springframework.samples.petclinic.owner;
+
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *      https://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import jakarta.validation.Valid;
+import java.util.List;
+import java.util.Map;
  * limitations under the License.
  */
 package org.springframework.samples.petclinic.owner;
@@ -77,10 +80,18 @@ class OwnerController {
 	@PostMapping("/owners/new")
 	public String processCreationForm(@Valid Owner owner, BindingResult result, RedirectAttributes redirectAttributes) {
 		if (result.hasErrors()) {
-			redirectAttributes.addFlashAttribute("error", "There was an error in creating the owner.");
-			return VIEWS_OWNER_CREATE_OR_UPDATE_FORM;
-		}
+		return "owners/ownerDetails";
+	}
 
+	@ExceptionHandler(MethodArgumentTypeMismatchException.class)
+	public String handleTypeMismatch(MethodArgumentTypeMismatchException ex,
+			RedirectAttributes redirectAttributes) {
+		redirectAttributes.addFlashAttribute("error",
+				"Invalid owner ID: '" + ex.getValue() + "' is not a valid number.");
+		return "redirect:/owners/find";
+	}
+
+}
 		this.owners.save(owner);
 		redirectAttributes.addFlashAttribute("message", "New Owner Created");
 		return "redirect:/owners/" + owner.getId();
