@@ -1,34 +1,165 @@
-<!DOCTYPE html>
+/*
+ * PetClinic custom stylesheet
+ * Supplements Bootstrap with application-specific styles.
+ */
 
-<html xmlns:th="https://www.thymeleaf.org" th:replace="~{fragments/layout :: layout (~{::body},'owners')}">
+/* =========================================================
+   General / shared styles
+   ========================================================= */
+
+body {
+  padding-top: 70px; /* offset for fixed navbar */
+}
+
+.navbar-brand img {
+  height: 40px;
+  margin-right: 8px;
+}
+
+/* =========================================================
+   Find Owners page  (.find-owners-form scope)
+   ========================================================= */
+
+/* Centered card container */
+.find-owners-form {
+  max-width: 520px;
+  margin: 40px auto;
+  background: #ffffff;
+  border: 1px solid #dee2e6;
+  border-radius: 8px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+  padding: 36px 40px 32px;
+}
+
+/* Page title inside the card */
+.find-owners-form .find-owners-title {
+  font-size: 1.6rem;
+  font-weight: 600;
+  color: #343a40;
+  margin-bottom: 24px;
+  text-align: center;
+  letter-spacing: 0.01em;
+}
+
+/* Form group spacing */
+.find-owners-form .form-group {
+  margin-bottom: 20px;
+}
+
+/* Label refinements */
+.find-owners-form label {
+  font-weight: 500;
+  color: #495057;
+  margin-bottom: 6px;
+  display: block;
+}
+
+/* Input field — larger, better padded, visible focus ring */
+.find-owners-form .form-control {
+  height: 46px;
+  padding: 10px 14px;
+  font-size: 1rem;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.find-owners-form .form-control::placeholder {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+.find-owners-form .form-control:focus {
+  border-color: #80bdff;
+  outline: 0;
+  box-shadow: 0 0 0 3px rgba(0, 123, 255, 0.25);
+}
+
+/* Primary action button — prominent, full-width on small screens */
+.find-owners-form .btn-find {
+  height: 46px;
+  font-size: 1rem;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  border-radius: 6px;
+  padding: 0 28px;
+}
+
+/* Button row spacing */
+.find-owners-form .find-owners-actions {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-top: 8px;
+  flex-wrap: wrap;
+}
+
+/* 'Add Owner' secondary link styled as an outlined button */
+.find-owners-form .btn-add-owner {
+  font-size: 0.95rem;
+  font-weight: 500;
+  border-radius: 6px;
+  padding: 10px 20px;
+}
+<!DOCTYPE html>
+<html xmlns:th="https://www.thymeleaf.org"
+  th:replace="~{fragments/layout :: layout (~{::body},'owners')}">
 
 <body>
 
-  <h2 th:text="#{findOwners}">Find Owners</h2>
+  <div class="container-fluid">
+    <div class="container find-owners-form">
 
-  <form th:object="${owner}" th:action="@{/owners}" method="get" class="form-horizontal" id="search-owner-form">
-    <div class="form-group">
-      <div class="control-group" id="lastNameGroup">
-        <label class="col-sm-2 control-label" th:text="#{lastName}">Last name </label>
-        <div class="col-sm-10">
-          <input class="form-control" th:field="*{lastName}" size="30" maxlength="80" />
-          <span class="help-inline">
-            <div th:if="${#fields.hasAnyErrors()}">
-              <p th:each="err : ${#fields.allErrors()}" th:text="${err}">Error</p>
+      <div class="row justify-content-center mt-4 mb-4">
+        <div class="col-12 col-md-8 col-lg-6">
+
+          <div class="card shadow-sm">
+            <div class="card-body p-4">
+
+              <h2 class="card-title text-center mb-4">Find Owners</h2>
+
+              <form th:object="${owner}" th:action="@{/owners}" method="get"
+                class="form-horizontal">
+
+                <div class="form-group mb-3">
+                  <label for="lastName" class="form-label fw-semibold">Last Name</label>
+                  <div class="input-group">
+                    <input class="form-control form-control-lg" th:field="*{lastName}"
+                      id="lastName" placeholder="Enter last name to search..." size="30"
+                      maxlength="80" />
+                  </div>
+                  <div class="help-block" th:if="${owner.lastName != null}">
+                    <ul class="list-unstyled mt-1">
+                      <li th:each="error : ${#fields.errors('lastName')}"
+                        th:text="${error}" class="text-danger small"></li>
+                    </ul>
+                  </div>
+                </div>
+
+                <div class="d-grid gap-2 mt-4">
+                  <button type="submit" class="btn btn-primary btn-lg">
+                    <i class="fa fa-search" aria-hidden="true"></i>
+                    Find Owner
+                  </button>
+                </div>
+
+              </form>
+
             </div>
-          </span>
+          </div>
+
+          <div class="text-center mt-4">
+            <a th:href="@{/owners/new}" class="btn btn-outline-secondary btn-lg">
+              <i class="fa fa-user-plus" aria-hidden="true"></i>
+              Add Owner
+            </a>
+          </div>
+
         </div>
       </div>
-    </div>
-    <div class="form-group">
-      <div class="col-sm-offset-2 col-sm-10">
-        <button type="submit" class="btn btn-primary" th:text="#{findOwner}">Find Owner</button>
-      </div>
-    </div>
 
-    <a class="btn btn-primary" th:href="@{/owners/new}" th:text="#{addOwner}">Add Owner</a>
-
-  </form>
+    </div>
+  </div>
 
 </body>
 
