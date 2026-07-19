@@ -16,7 +16,6 @@ class CrashController {
  * limitations under the License.
  */
 package org.springframework.samples.petclinic.system;
-
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -25,9 +24,14 @@ import org.springframework.web.bind.annotation.GetMapping;
  * Controller used to showcase what happens when an exception is thrown
  *
  * @author Michael Isvy
- * @since 5.0
+ * <p>
+ * Also see how a view that resolves to "error" works in Spring MVC.
  */
 @Controller
+@Profile("!production")
+public class CrashController {
+
+	@GetMapping("/oups")
 @Profile("!production")
 class CrashController {
 				"Expected: controller used to showcase what happens when an exception is thrown");
