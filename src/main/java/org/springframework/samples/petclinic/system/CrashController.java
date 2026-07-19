@@ -1,8 +1,8 @@
-package org.springframework.samples.petclinic.system;
-
-import org.springframework.context.annotation.Profile;
-import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.GetMapping;
+/*
+ * Copyright 2012-2024 the original author or authors.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
 
 @Controller
 @Profile("!production")
@@ -17,6 +17,7 @@ class CrashController {
  */
 package org.springframework.samples.petclinic.system;
 
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 
@@ -24,9 +25,12 @@ import org.springframework.web.bind.annotation.GetMapping;
  * Controller used to showcase what happens when an exception is thrown
  *
  * @author Michael Isvy
- * <p/>
- * Also see how a view that resolves to "error" has been added ("error.html").
+ * <p>
+ * Also see how a view that resolves to "error" works in Spring MVC.
  */
+@Controller
+@Profile("!production")
+class CrashController {
 @Controller
 class CrashController {
 
